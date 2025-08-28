@@ -1,9 +1,10 @@
+# -*- coding: utf-8 -*-
 import numpy as np
 import soundfile as sf
 import torch
 import utils
-from pyneuralfx.vis.plotting import *
-from pyneuralfx.vis.sysplotting import *
+from pyneuralfxPlugin.vis.plotting import *
+from pyneuralfxPlugin.vis.sysplotting import *
 
 
 path_outdir = '.'
