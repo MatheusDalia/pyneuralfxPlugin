@@ -32,7 +32,7 @@ cond = [0, 0]  # -1 ~ 1
 
 # Inferência
 wav_y_pred = utils.forward_func(
-    wav_x, cond, nn_model, args['model']['arch'], 'cpu')
+    wav_x, cond, nn_model, args['model']['arch'], 'cuda')
 wav_y_pred = utils.convert_tensor_to_numpy(wav_y_pred, is_squeeze=True)
 
 # Salve o áudio processado

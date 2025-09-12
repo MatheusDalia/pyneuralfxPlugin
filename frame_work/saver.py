@@ -11,7 +11,9 @@ from torch.utils.data import Dataset
 
 
 from json import JSONEncoder
-class EncodeTensor(JSONEncoder,Dataset):
+
+
+class EncodeTensor(JSONEncoder, Dataset):
     def default(self, obj):
         if isinstance(obj, torch.Tensor):
             return obj.cpu().detach().numpy().tolist()
@@ -21,8 +23,9 @@ class EncodeTensor(JSONEncoder,Dataset):
 # Utilities
 # ============================================================ #
 
+
 def to_json(path_params, path_json, cnn_mask_bounds=None):
-    params = torch.load(path_params, map_location=torch.device('cpu'))
+    params = torch.load(path_params, map_location=torch.device('cuda'))
     raw_state_dict = {}
     for k, v in params.items():
         # print('-----------')
@@ -34,9 +37,8 @@ def to_json(path_params, path_json, cnn_mask_bounds=None):
         raw_state_dict[k] = val
 
     with open(path_json, 'w') as outfile:
-        json.dump(raw_state_dict, outfile,indent= "\t")
+        json.dump(raw_state_dict, outfile, indent="\t")
 
-    
 
 def make_loss_report(
         path_log,
@@ -61,7 +63,6 @@ def make_loss_report(
     step_valid = [item[1] for item in monitor_vals['valid loss']]
     vals_valid = [item[0] for item in monitor_vals['valid loss']]
 
-
     x_min = step_valid[np.argmin(vals_valid)]
     y_min = min(vals_valid)
 
@@ -84,13 +85,13 @@ def make_loss_report(
 
 class Saver(object):
     def __init__(
-            self, 
+            self,
             exp_dir,
             debug=False):
 
         # exp dir
         self.exp_dir = exp_dir
-        
+
         # cold start
         self.global_step = -1
         self.init_time = time.time()
@@ -114,17 +115,17 @@ class Saver(object):
         with open(self.path_log_loss, 'a') as fp:
             for key, val in loss_dict.items():
                 msg_str = '{:10s} | {:.10f} | {:10d} | {}\n'.format(
-                    key, 
-                    val, 
-                    step, 
+                    key,
+                    val,
+                    step,
                     cur_time
                 )
                 fp.write(msg_str)
 
     def save_model(
-            self, 
-            model, 
-            outdir=None, 
+            self,
+            model,
+            outdir=None,
             name='model',
             is_to_json=True):
 
@@ -133,7 +134,7 @@ class Saver(object):
             outdir = os.path.join('ckpts', self.exp_dir)
         path_pt = os.path.join(outdir, name+'.pt')
         path_params = os.path.join(outdir, name+'_params.pt')
-       
+
         # check
         print(' [*] saving model to {}, name: {}'.format(outdir, name))
 
@@ -145,7 +146,7 @@ class Saver(object):
         if is_to_json:
             path_json = os.path.join(outdir, name+'_params.json')
             to_json(path_params, path_json)
-    
+
         path_plugin_json = os.path.join(outdir, name+'_rt_plugin.json')
         with open(path_plugin_json, 'w') as json_file:
             json.dump(model.state_dict(), json_file, cls=EncodeTensor)
@@ -159,4 +160,3 @@ class Saver(object):
             self.path_log_loss,
             path_figure=path_figure,
             dpi=100)
-
