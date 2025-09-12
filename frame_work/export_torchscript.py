@@ -11,7 +11,7 @@ nn_model = utils.setup_models(args)
 nn_model = utils.load_model(
     'pre_trained/statichyper_gru_32',
     nn_model,
-    device='cpu',  # força CPU para exportação
+    device='cuda',  # força CPU para exportação
     name='best_params.pt'
 )
 

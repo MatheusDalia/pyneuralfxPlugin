@@ -26,7 +26,7 @@ nn_model = utils.setup_models(args)
 nn_model = utils.load_model(
     args.env.expdir,
     nn_model,
-    device='cpu',
+    device='cuda',
     name='best_params.pt')
 
 # device

@@ -18,7 +18,7 @@ nn_model = utils.setup_models(args)
 nn_model = utils.load_model(
     'pre_trained/statichyper_gru_32',
     nn_model,
-    device='cpu',
+    device='cuda',
     name='best_params.pt'
 )
 
@@ -47,7 +47,7 @@ nn_model = utils.setup_models(args)
 nn_model = utils.load_model(
     'pre_trained/statichyper_gru_32',
     nn_model,
-    device='cpu',
+    device='cuda',
     name='best_params.pt'
 )
 
