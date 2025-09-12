@@ -34,8 +34,8 @@ def convert_tensor_to_numpy(tensor, is_squeeze=True):
         tensor = tensor.squeeze()
     if tensor.requires_grad:
         tensor = tensor.detach()
-    if tensor.is_cuda:
-        tensor = tensor.cuda()
+    # Sempre mova para CPU antes de converter para numpy
+    tensor = tensor.cpu()
     return tensor.numpy()
 
 
