@@ -34,7 +34,7 @@ nn_model = utils.setup_models(args)
 nn_model = utils.load_model(
     os.path.dirname(config_path),
     nn_model,
-    device='cpu',
+    device='cuda',
     name='best_params.pt'
 )
 
@@ -45,7 +45,7 @@ def process_audio(input_audio, cond1, cond2):
     wav_x = torch.from_numpy(wav_x).unsqueeze(0).unsqueeze(0)
     cond = [cond1, cond2]  # Parâmetros do usuário
     wav_y_pred = utils.forward_func(
-        wav_x, cond, nn_model, args['model']['arch'], 'cpu')
+        wav_x, cond, nn_model, args['model']['arch'], 'cuda')
     wav_y_pred = utils.convert_tensor_to_numpy(wav_y_pred, is_squeeze=True)
     output_path = "output_od3.wav"
     sf.write(output_path, wav_y_pred, nn_model.sample_rate)
