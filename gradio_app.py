@@ -2,7 +2,7 @@ import gradio as gr
 import torch
 import librosa
 import soundfile as sf
-import utils
+from frame_work import utils
 from pyneuralfx.models.rnn.gru import *
 
 # Inicialize o modelo uma vez
