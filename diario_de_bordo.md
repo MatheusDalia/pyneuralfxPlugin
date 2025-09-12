@@ -195,4 +195,154 @@ Indica quantos parâmetros de controle (condições) o modelo recebe como entrad
 **Descrição:** Confirmei que o modelo concat_gru já foi treinado anteriormente, utilizando o arquivo de configuração `concat_gru.yml`, que define o número de épocas (`epochs`). Esclareci o conceito de época: cada época corresponde a uma passagem completa pelo dataset de treinamento, permitindo que o modelo ajuste seus parâmetros a cada ciclo. No experimento, o número de épocas estava alto (200), o que resultou em tempo de treinamento elevado (cerca de 4 horas para 2 épocas).
 **Erros Encontrados:** Tempo de treinamento excessivo para o hardware disponível.
 **Soluções Aplicadas:** Recomendei reduzir o número de épocas para 5 ou 10, diminuir o tamanho do dataset e o batch size para acelerar o processo. Sugeri interromper o treinamento quando necessário e usar o modelo salvo até o momento para validação do pipeline.
-**Ideias/Sugestões:** Documentar todas as adaptações no diário de bordo para justificar decisões técnicas no TCC. Validar o pipeline com menos dados e menos épocas, focando na demonstração do funcionamento
+**Ideias/Sugestões:** Documentar todas as adaptações no diário de bordo para justificar decisões técnicas no TCC. Validar o pipeline com menos dados e menos épocas, focando na demonstração do funcionamento.
+
+### 22/08/2025
+
+**Etapa/Atividade:** Inferência local com modelo pré-treinado Boss OD-3
+
+**Descrição:**  
+Optei por não realizar novo treinamento e foquei na execução do modelo pré-treinado Boss OD-3. Organizei o ambiente local, garantindo a instalação dos pacotes necessários (`torch`, `numpy`, `soundfile`, `librosa`, `pyyaml`). Ajustei os scripts para rodar a inferência, corrigindo problemas de importação de módulos e carregamento da configuração (usando `utils.load_config` para evitar erros de acesso por atributo).  
+Preparei o arquivo de áudio de entrada e executei o script de inferência, que carregou corretamente o modelo pré-treinado (`best_params.pt`) e processou o áudio de exemplo. O resultado foi salvo com sucesso em `output_od3.wav`, permitindo análise subjetiva do efeito Boss OD-3 simulado.
+
+**Erros Encontrados:**
+
+- Importação de módulos (`frame_work.utils` vs `utils`)
+- Carregamento da configuração como dict ao invés de objeto
+- Dependências ausentes (`IPython`, etc.)
+- Caminhos relativos e estrutura de arquivos
+
+**Soluções Aplicadas:**
+
+- Ajuste dos imports para refletir o diretório de execução
+- Uso da função `utils.load_config` para carregar configurações corretamente
+- Instalação dos pacotes necessários via pip
+- Remoção de dependências desnecessárias para execução local
+- Organização dos arquivos do modelo e áudio de entrada
+
+**Resultado:**  
+Consegui rodar a inferência do modelo Boss OD-3 localmente com tranquilidade, gerando o arquivo de saída `output_od3.wav` para comparação direta com o áudio original. O pipeline de inferência está funcional e pronto para ser utilizado na avaliação da qualidade da emulação do pedal OD-3.
+
+### 22/08/2025
+
+**Observação sobre desempenho:**  
+Durante a execução local da inferência com o modelo pré-treinado Boss OD-3, notei que o tempo de processamento para gerar o arquivo de saída `output_od3.wav` foi elevado. Esse tempo de resposta é inviável para uso em tempo real, como seria necessário em um plugin de áudio (VST/AU).  
+A lentidão pode estar relacionada à arquitetura do modelo, ao uso de CPU ao invés de GPU, ou à forma como o processamento em lote está implementado. Para aplicações práticas como plugins, seria necessário otimizar o modelo, converter para formatos mais leves (ex: ONNX, TorchScript), ou adaptar o pipeline para execução eficiente em tempo real.
+
+**Sugestão:**  
+Investigar alternativas de otimização e considerar limitações de desempenho na documentação e apresentação.
+
+### 22/08/2025
+
+**Etapa/Atividade:** Teste e exportação do modelo pré-treinado Boss OD-3
+
+**Descrição detalhada:**  
+Decidi focar na execução do modelo pré-treinado Boss OD-3, sem realizar novos treinamentos. Organizei o ambiente local, instalei todas as dependências necessárias e corrigi problemas de importação e configuração. Consegui rodar a inferência localmente, gerando o arquivo de saída `output_od3.wav` para análise subjetiva do efeito simulado.  
+Avancei para a etapa de exportação do modelo, visando encapsular o sistema para uso em tempo real (ex: plugin VST/AU). Tentei exportar para TorchScript e ONNX, mas encontrei dificuldades técnicas: o método `forward` do modelo exige argumentos adicionais (`h0`), tornando o processo de exportação menos direto.  
+Além disso, observei que o tempo de processamento para gerar o áudio é elevado, o que inviabiliza o uso do modelo em tempo real como plugin DSP. Esse gargalo pode estar relacionado à arquitetura do modelo, ao uso de CPU, ou à falta de otimizações específicas para inferência rápida.
+
+**Erros Encontrados:**
+
+- Importação de módulos e configuração como dict ao invés de objeto.
+- Dependências ausentes e caminhos relativos.
+- Exportação do modelo falhou por falta do argumento `h0` no método `forward`.
+- Tempo de processamento muito alto para uso em tempo real.
+
+**Soluções Aplicadas:**
+
+- Ajuste dos imports e uso da função `utils.load_config`.
+- Instalação dos pacotes necessários via pip.
+- Remoção de dependências desnecessárias para execução local.
+- Organização dos arquivos do modelo e áudio de entrada.
+- Tentativa de exportação do modelo com inclusão do argumento `h0`.
+
+**Resultado:**  
+Consegui rodar a inferência do modelo Boss OD-3 localmente e gerar o arquivo de saída para análise. Identifiquei que a exportação do modelo requer ajustes adicionais e que o desempenho atual inviabiliza o uso como plugin em tempo real.  
+Estou preocupado com a viabilidade da ideia original de encapsular o sistema como ferramenta DSP/plugin, pois o tempo de processamento não atende aos requisitos de latência para áudio em tempo real.  
+Sugiro investigar alternativas de otimização, simplificação do modelo, ou uso de técnicas de compressão e aceleração de modelos para viabilizar a proposta do TCC.
+
+### 22/08/2025
+
+**Registro de dúvidas, inseguranças e dificuldades técnicas:**
+
+Durante o processo de validação e exportação do modelo pré-treinado Boss OD-3, enfrentei diversas dificuldades técnicas e conceituais que levantaram preocupações sobre a viabilidade do projeto como ferramenta de áudio em tempo real (plugin DSP):
+
+- **Exportação do modelo:**  
+  Tive dificuldades para exportar o modelo treinado para TorchScript e ONNX devido à lógica dinâmica do método `forward`, especialmente o tratamento de tuplas de tensores para LSTM/GRU. O TorchScript não aceita certas operações dinâmicas, exigindo adaptações no código ou uso do `torch.jit.trace` com entradas específicas.
+
+- **Dependências e ambiente:**  
+  Enfrentei problemas de compatibilidade de pacotes, especialmente com o PyTorch em Python 3.12, exigindo migração para Python 3.10. Também houve dificuldades com importação de módulos e organização dos arquivos do projeto.
+
+- **Desempenho:**  
+  O tempo de processamento para gerar o áudio de saída é elevado, tornando inviável o uso do modelo em tempo real como plugin. Isso gera preocupação sobre a possibilidade de encapsular o sistema para uso prático em DAWs ou como DSP.
+
+- **Inseguranças conceituais:**  
+  Estou inseguro sobre a viabilidade de transformar o modelo em uma ferramenta que processe áudio em tempo real, com controle de parâmetros, devido à latência e limitações técnicas do pipeline atual.
+
+- **Dúvidas sobre integração:**  
+  Não está claro como exportar e integrar o modelo em frameworks de plugin (JUCE, HISE, etc.), nem como garantir que o processamento seja suficientemente rápido para uso profissional.
+
+---
+
+**Mensagem para o orientador:**
+
+Olá professor,
+
+Gostaria de compartilhar algumas dúvidas e preocupações que surgiram durante o desenvolvimento do projeto:
+
+- Estou enfrentando dificuldades técnicas para exportar o modelo treinado em PyTorch para formatos como TorchScript ou ONNX, devido à lógica dinâmica do método `forward` e à necessidade de argumentos adicionais (como o estado oculto `h0`). O TorchScript não aceita certas operações, o que exige adaptações que não domino completamente.
+- Tive problemas de compatibilidade de pacotes, especialmente com o PyTorch em Python 3.12, e precisei migrar para Python 3.10 para conseguir instalar e rodar tudo corretamente.
+- O tempo de processamento do modelo para gerar o áudio de saída é muito alto, o que inviabiliza o uso em tempo real como plugin de áudio. Isso me preocupa, pois a ideia original era encapsular o sistema como uma ferramenta DSP, com controle de parâmetros e resposta rápida.
+- Estou inseguro sobre como exportar e integrar o modelo em frameworks de plugin (como JUCE ou HISE), e não sei se o pipeline atual pode ser otimizado para atender aos requisitos de latência de aplicações profissionais.
+- Tenho dúvidas se a arquitetura do modelo ou o próprio conceito do projeto são viáveis para uso prático, ou se seria necessário simplificar ou repensar a abordagem.
+
+Gostaria de discutir alternativas, possíveis caminhos de otimização, ou até mesmo ajustes no escopo do projeto para garantir que o resultado seja aplicável e relevante.  
+Agradeço pela orientação e estou aberto a sugestões para superar essas dificuldades.
+
+---
+
+28/08/2025
+Etapa/Atividade: Empacotamento do modelo Boss OD-3 em Gradio App
+Descrição:
+
+Adaptei o script de inferência para funcionar como uma interface web usando Gradio.
+Implementei sliders para controle dos parâmetros do modelo (cond1 e cond2), permitindo ajuste dinâmico pelo usuário.
+O usuário pode fazer upload de um arquivo de áudio, ajustar os parâmetros e baixar o resultado processado.
+Erros Encontrados:
+
+Player do Gradio não tocava o áudio: resolvido garantindo que o arquivo de saída fosse válido.
+Argumento source="upload" não suportado nas versões recentes do Gradio: removido.
+Erro de importação do pacote torch devido à incompatibilidade com Python 3.12: resolvido criando ambiente virtual com Python 3.10.
+Erro de incompatibilidade entre PyTorch e NumPy 2.x: resolvido fazendo downgrade do NumPy para versão 1.x.
+Erro de importação do módulo pyneuralfx: resolvido ajustando o PYTHONPATH para incluir o diretório src e rodando o script da raiz do projeto.
+Erro de caminho relativo do arquivo de configuração: resolvido rodando o script do diretório correto.
+Falta de dependências (gradio, torch, einops, pyloudnorm, etc.): instaladas manualmente no ambiente virtual.
+Soluções Aplicadas:
+
+Criação de ambiente virtual com Python 3.10.
+Instalação manual das dependências necessárias.
+Downgrade do NumPy para garantir compatibilidade com PyTorch.
+Ajuste do PYTHONPATH e diretório de execução para garantir importação dos módulos.
+Adaptação do código para interface Gradio, removendo argumentos obsoletos e implementando sliders para parâmetros de controle.
+Ideias/Sugestões:
+
+Melhorar o design da interface Gradio, adicionar nomes descritivos para os sliders e garantir que o arquivo de saída seja único a cada execução.
+Documentar todo o fluxo para facilitar reprodutibilidade e apresentação do TCC.
+Testar com diferentes arquivos de áudio e valores de parâmetros para avaliar o comportamento do modelo.
+
+28/08/2025
+Observação sobre desempenho:
+Durante testes com o Gradio App rodando localmente, notei que o tempo de processamento do modelo para áudios curtos (ex: 6 segundos) é muito elevado, chegando a cerca de 170 segundos para processar um único arquivo. Esse desempenho inviabiliza o uso prático do sistema para aplicações interativas ou em tempo real.
+
+Possíveis causas:
+
+O modelo é pesado e não otimizado para inferência rápida.
+O processamento está sendo feito na CPU, sem uso de GPU.
+O pipeline pode estar processando amostra por amostra ou com loops ineficientes.
+O modelo RNN/GRU pode ser naturalmente lento para áudios longos.
+Sugestões:
+
+Testar uso de GPU, se disponível.
+Reduzir taxa de amostragem dos áudios para acelerar testes.
+Investigar otimizações no pipeline e processamento em lote.
+Documentar essa limitação como desafio técnico no TCC e discutir alternativas.

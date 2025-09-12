@@ -6,11 +6,11 @@ import utils
 from pyneuralfx.models.rnn.gru import *
 
 # Inicialize o modelo uma vez
-cmd = {'config': 'pre_trained/statichyper_gru_32/statichyper_gru.yml'}
+cmd = {'config': 'frame_work/pre_trained/statichyper_gru_32/statichyper_gru.yml'}
 args = utils.load_config(cmd['config'])
 nn_model = utils.setup_models(args)
 nn_model = utils.load_model(
-    'pre_trained/statichyper_gru_32',
+    'frame_work/pre_trained/statichyper_gru_32',
     nn_model,
     device='cpu',
     name='best_params.pt'
