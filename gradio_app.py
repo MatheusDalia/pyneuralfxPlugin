@@ -4,13 +4,35 @@ import librosa
 import soundfile as sf
 from frame_work import utils
 from pyneuralfx.models.rnn.gru import *
+import sys
+import os
+import argparse
+
+# Argument parser for config path
+
+
+def get_config_path():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--config', type=str, default=None,
+                        help='Path to config file')
+    args, _ = parser.parse_known_args()
+    if args.config:
+        return args.config
+    # Default absolute path for Colab and local
+    default_path = os.path.join(os.path.dirname(
+        __file__), 'frame_work', 'pre_trained', 'statichyper_gru_32', 'statichyper_gru.yml')
+    if os.path.exists(default_path):
+        return default_path
+    # Fallback to relative path
+    return 'frame_work/pre_trained/statichyper_gru_32/statichyper_gru.yml'
+
 
 # Inicialize o modelo uma vez
-cmd = {'config': 'frame_work/pre_trained/statichyper_gru_32/statichyper_gru.yml'}
-args = utils.load_config(cmd['config'])
+config_path = get_config_path()
+args = utils.load_config(config_path)
 nn_model = utils.setup_models(args)
 nn_model = utils.load_model(
-    'frame_work/pre_trained/statichyper_gru_32',
+    os.path.dirname(config_path),
     nn_model,
     device='cpu',
     name='best_params.pt'
