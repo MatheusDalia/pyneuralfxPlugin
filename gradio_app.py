@@ -42,11 +42,21 @@ nn_model = utils.load_model(
 def process_audio(input_audio, cond1, cond2):
     # Carrega o áudio enviado pelo usuário
     wav_x, sr = librosa.load(input_audio, sr=nn_model.sample_rate, mono=True)
-    wav_x = torch.from_numpy(wav_x).unsqueeze(0).unsqueeze(0)
     cond = [cond1, cond2]  # Parâmetros do usuário
-    wav_y_pred = utils.forward_func(
-        wav_x, cond, nn_model, args['model']['arch'], 'cuda')
-    wav_y_pred = utils.convert_tensor_to_numpy(wav_y_pred, is_squeeze=True)
+    block_size = 2048
+    audio = wav_x
+    output_blocks = []
+    with torch.no_grad():
+        for i in range(0, len(audio), block_size):
+            block = audio[i:i+block_size]
+            block_tensor = torch.from_numpy(
+                block).unsqueeze(0).unsqueeze(0).to('cuda')
+            y_block = utils.forward_func(
+                block_tensor, cond, nn_model, args['model']['arch'], 'cuda')
+            y_block_np = utils.convert_tensor_to_numpy(
+                y_block, is_squeeze=True)
+            output_blocks.append(y_block_np)
+    wav_y_pred = np.concatenate(output_blocks)
     output_path = "output_od3.wav"
     sf.write(output_path, wav_y_pred, nn_model.sample_rate)
     return output_path
